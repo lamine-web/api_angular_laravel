@@ -30,15 +30,6 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        //  $blog = $request->validate([
-        //     'title' => 'required|string',
-        //     'description' => 'required'
-        // ]);
-        // $blog = Blog::create([
-        //     'titre' => $request->titre,
-        //     'description' => $request->description
-        // ]);
         $blog = new Blog();
         $blog->titre = $request->titre;
         $blog->description = $request->description;
@@ -86,5 +77,20 @@ class BlogController extends Controller
             $blog = Blog::findOrFail($id);
             $blog->delete();
             return response()->json($blog, 200);
+    }
+    /**
+     * Search for a blog by title.
+     */
+    public function search(Request $request)
+    {
+         $search = $request->query('search');
+
+        $blogs = Blog::query()
+            ->when($search, fn($query) =>
+                $query->where('titre', 'like', "%{$search}%")
+            )
+            ->get();
+
+        return response()->json($blogs, 200);
     }
 }
